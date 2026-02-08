@@ -13,7 +13,8 @@
                 extend: {
                     fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
                     colors: {
-                        primary: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a' }
+                        primary: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a' },
+                        unc: { 50: '#fff7ed', 100: '#ffedd5', 200: '#fed7aa', 300: '#fdba74', 400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c', 800: '#9a3412', 900: '#7c2d12' }
                     }
                 }
             }
@@ -25,6 +26,8 @@
         .course-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); will-change: transform; }
         .course-card:hover { transform: translateY(-8px); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15); }
         .course-card:active { transform: scale(0.98); }
+        .course-card-unc { border: 2px solid #f97316; position: relative; }
+        .course-card-unc::before { content: '★ DESTACADO'; position: absolute; top: -12px; left: 20px; background: linear-gradient(135deg, #f97316, #ea580c); color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; z-index: 10; }
         .btn-modern { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); transition: all 0.3s ease; position: relative; overflow: hidden; }
         .btn-modern::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); transition: left 0.6s; }
         .btn-modern:hover::before { left: 100%; }
@@ -33,10 +36,13 @@
         .status-active { background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #065f46; }
         .status-recorded { background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #1e40af; }
         .status-pending { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #92400e; }
+        .badge-unc { background: linear-gradient(135deg, #ffedd5, #fed7aa); border: 1px solid #fdba74; color: #9a3412; }
         @media (max-width: 640px) { .touch-btn { min-height: 48px; font-size: 16px; } .scroll-filters { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; } .scroll-filters::-webkit-scrollbar { display: none; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         .animate-slide-up { animation: slideUp 0.6s ease-out forwards; }
         .stagger-1 { animation-delay: 0.1s; } .stagger-2 { animation-delay: 0.2s; } .stagger-3 { animation-delay: 0.3s; } .stagger-4 { animation-delay: 0.4s; }
+        .pulse-badge { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .7; } }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen antialiased">
@@ -55,7 +61,7 @@
                         <span class="block text-blue-200 text-lg md:text-2xl font-medium mt-2">DRA. PAREDES BENEDETTI</span>
                     </h1>
                     <p class="mt-4 text-blue-100 text-sm md:text-base max-w-2xl leading-relaxed">
-                        Blockchain, Legal Tech y Derecho Digital<br>
+                        Blockchain, Smart Contracts, Legal Tech y Derecho Digital<br>
                         <span class="opacity-80">Solo cursos activos, verificados y accesibles</span>
                     </p>
                 </div>
@@ -70,6 +76,15 @@
     </header>
 
     <main class="container mx-auto px-4 py-8 md:py-12">
+        <!-- Destacado UNC -->
+        <div class="bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl p-6 mb-8 border-2 border-orange-200">
+            <div class="flex items-center gap-3 mb-4">
+                <span class="pulse-badge bg-orange-500 text-white px-4 py-1 rounded-full text-sm font-bold">★ PRIORIDAD</span>
+                <h2 class="text-xl font-bold text-slate-800">Universidad Nacional de Córdoba (UNC)</h2>
+            </div>
+            <p class="text-slate-700 text-sm">Cursos verificados de la UNC (Blockchain, Smart Contracts/Contratos Inteligentes, IA y Derecho). Se muestran primero por cercanía institucional.</p>
+        </div>
+
         <!-- Leyenda de Estados -->
         <div class="bg-white rounded-2xl p-4 md:p-6 shadow-lg mb-8 border border-slate-200">
             <h3 class="font-semibold text-slate-800 mb-3 text-sm md:text-base">📋 Estados de los Cursos:</h3>
@@ -133,12 +148,25 @@
             <div class="glass-card rounded-2xl p-4 md:p-6 shadow-lg">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-3xl md:text-4xl font-bold text-purple-600" id="mixedCount">0</p>
-                        <p class="text-slate-600 text-xs md:text-sm font-medium mt-1">Mixtos</p>
+                        <p class="text-3xl md:text-4xl font-bold text-orange-600" id="uncCount">0</p>
+                        <p class="text-slate-600 text-xs md:text-sm font-medium mt-1">UNC Córdoba</p>
+                    </div>
+                    <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
+                        <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <div class="glass-card rounded-2xl p-4 md:p-6 shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-3xl md:text-4xl font-bold text-purple-600" id="smartContractsCount">0</p>
+                        <p class="text-slate-600 text-xs md:text-sm font-medium mt-1">Smart Contracts</p>
                     </div>
                     <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
                         <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
                     </div>
                 </div>
@@ -154,6 +182,22 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
                         </svg>
                         Todos
+                    </span>
+                </button>
+                <button onclick="filterCourses('unc')" class="filter-btn touch-btn flex-shrink-0 px-6 py-3 rounded-full bg-white text-orange-700 font-semibold border border-orange-200 shadow-sm hover:bg-orange-50" data-category="unc">
+                    <span class="flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                        UNC Córdoba
+                    </span>
+                </button>
+                <button onclick="filterCourses('smart-contracts')" class="filter-btn touch-btn flex-shrink-0 px-6 py-3 rounded-full bg-white text-purple-700 font-semibold border border-purple-200 shadow-sm hover:bg-purple-50" data-category="smart-contracts">
+                    <span class="flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Smart Contracts
                     </span>
                 </button>
                 <button onclick="filterCourses('blockchain')" class="filter-btn touch-btn flex-shrink-0 px-6 py-3 rounded-full bg-white text-slate-700 font-semibold border border-slate-200 shadow-sm hover:bg-blue-50" data-category="blockchain">
@@ -172,22 +216,85 @@
                         Legal Tech
                     </span>
                 </button>
-                <button onclick="filterCourses('mixed')" class="filter-btn touch-btn flex-shrink-0 px-6 py-3 rounded-full bg-white text-slate-700 font-semibold border border-slate-200 shadow-sm hover:bg-purple-50" data-category="mixed">
-                    <span class="flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
-                        </svg>
-                        Mixtos
-                    </span>
-                </button>
             </div>
         </div>
 
         <!-- Cursos Verificados -->
         <div id="courses-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
             
-            <!-- CURSO 1: UBA - IA Generativa - DISPONIBLE -->
-            <article class="course-card glass-card rounded-2xl shadow-lg overflow-hidden animate-slide-up stagger-1 opacity-0" data-category="legal-tech">
+            <!-- CURSO 1: UNC Criptoactivos - PRÓXIMO (DESTACADO) -->
+            <article class="course-card course-card-unc glass-card rounded-2xl shadow-lg overflow-hidden animate-slide-up stagger-1 opacity-0" data-category="blockchain smart-contracts unc">
+                <div class="h-1 bg-gradient-to-r from-orange-400 to-orange-600"></div>
+                <div class="p-5 md:p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="badge-unc inline-flex items-center px-3 py-1 rounded-full text-xs font-bold">
+                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                            </svg>
+                            UNC - FCE
+                        </span>
+                        <span class="status-pending px-3 py-1 rounded-full text-xs font-bold">2026</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-3 line-clamp-2">Criptoactivos, Blockchain y Smart Contracts</h3>
+                    <p class="text-slate-600 text-sm mb-4 line-clamp-3">Fundamentos de criptomonedas, blockchain, DeFi, Smart Contracts (Contratos Inteligentes) y economía digital. Facultad de Ciencias Económicas UNC.</p>
+                    <div class="space-y-2 mb-5 text-sm text-slate-500">
+                        <div class="flex items-center"><svg class="w-4 h-4 mr-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg><span class="font-medium text-slate-700">UNC - Fac. Cs. Económicas</span></div>
+                        <div class="flex items-center"><svg class="w-4 h-4 mr-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>7 semanas • 100% virtual</div>
+                        <div class="flex items-center"><svg class="w-4 h-4 mr-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>Próxima edición: 2026</div>
+                    </div>
+                    <div class="space-y-2">
+                        <a href="https://secretariaextension.eco.unc.edu.ar/index.php/15-cursos/economiadigital/170-criptoactivosyblockchain" target="_blank" class="btn-modern touch-btn block w-full text-center text-white py-3 rounded-xl font-semibold shadow-lg">📖 Preinscribirse</a>
+                        <p class="text-xs text-slate-500 text-center mt-2">📹 Clases grabadas • 💡 Incluye: Smart Contracts, DeFi, NFTs • Consultar costo</p>
+                    </div>
+                </div>
+            </article>
+
+            <!-- CURSO 2: UNC IA y Derecho Laboral - PRÓXIMO (DESTACADO) -->
+            <article class="course-card course-card-unc glass-card rounded-2xl shadow-lg overflow-hidden animate-slide-up stagger-2 opacity-0" data-category="legal-tech unc">
+                <div class="h-1 bg-gradient-to-r from-orange-400 to-orange-600"></div>
+                <div class="p-5 md:p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="badge-unc inline-flex items-center px-3 py-1 rounded-full text-xs font-bold">UNC - FCE</span>
+                        <span class="status-pending px-3 py-1 rounded-full text-xs font-bold">2026</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-3 line-clamp-2">IA aplicada y su relación con la Ética y el Derecho Laboral</h3>
+                    <p class="text-slate-600 text-sm mb-4 line-clamp-3">Inteligencia artificial aplicada al derecho laboral con enfoque ético. Facultad de Ciencias Económicas UNC.</p>
+                    <div class="space-y-2 mb-5 text-sm text-slate-500">
+                        <div class="flex items-center"><svg class="w-4 h-4 mr-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg><span class="font-medium text-slate-700">UNC - Fac. Cs. Económicas</span></div>
+                        <div class="flex items-center"><svg class="w-4 h-4 mr-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>12 semanas • Híbrido</div>
+                        <div class="flex items-center"><svg class="w-4 h-4 mr-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>Próxima edición: 2026</div>
+                    </div>
+                    <div class="space-y-2">
+                        <a href="https://secretariaextension.eco.unc.edu.ar/index.php/12-cursos/laboral-y-seguridad-social/258-ia-etica-derecho-laboral" target="_blank" class="btn-modern touch-btn block w-full text-center text-white py-3 rounded-xl font-semibold shadow-lg">📖 Ver Curso</a>
+                        <a href="mailto:cursos@eco.uncor.edu" class="touch-btn block w-full text-center bg-slate-100 text-slate-700 py-3 rounded-xl font-semibold hover:bg-slate-200 transition-colors">✉️ Consultar Inscripción</a>
+                    </div>
+                </div>
+            </article>
+
+            <!-- CURSO 3: UNC I-Lab - ACTIVO (DESTACADO) -->
+            <article class="course-card course-card-unc glass-card rounded-2xl shadow-lg overflow-hidden animate-slide-up stagger-3 opacity-0" data-category="mixed unc">
+                <div class="h-1 bg-gradient-to-r from-orange-400 to-orange-600"></div>
+                <div class="p-5 md:p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="badge-unc inline-flex items-center px-3 py-1 rounded-full text-xs font-bold">UNC - Derecho</span>
+                        <span class="status-active px-3 py-1 rounded-full text-xs font-bold">ACTIVO</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-3 line-clamp-2">Laboratorio de Innovación Jurídica (I-Lab)</h3>
+                    <p class="text-slate-600 text-sm mb-4 line-clamp-3">Espacio de investigación y formación en derecho y tecnología. IA, ciencia de datos e innovación jurídica.</p>
+                    <div class="space-y-2 mb-5 text-sm text-slate-500">
+                        <div class="flex items-center"><svg class="w-4 h-4 mr-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg><span class="font-medium text-slate-700">UNC - Facultad de Derecho</span></div>
+                        <div class="flex items-center"><svg class="w-4 h-4 mr-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>Continuo • Presencial/Virtual</div>
+                        <div class="flex items-center"><svg class="w-4 h-4 mr-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>Inaugurado: Octubre 2025</div>
+                    </div>
+                    <div class="space-y-2">
+                        <a href="https://derecho.unc.edu.ar/la-facultad-de-derecho-presenta-el-laboratorio-de-innovacion-juridica/" target="_blank" class="btn-modern touch-btn block w-full text-center text-white py-3 rounded-xl font-semibold shadow-lg">📖 Ver I-Lab</a>
+                        <p class="text-xs text-slate-500 text-center mt-2">✓ Gratuito • Abierto a la comunidad</p>
+                    </div>
+                </div>
+            </article>
+
+            <!-- CURSO 4: UBA - IA Generativa - DISPONIBLE -->
+            <article class="course-card glass-card rounded-2xl shadow-lg overflow-hidden animate-slide-up stagger-4 opacity-0" data-category="legal-tech">
                 <div class="h-1 bg-gradient-to-r from-emerald-400 to-emerald-600"></div>
                 <div class="p-5 md:p-6">
                     <div class="flex justify-between items-start mb-4">
@@ -208,30 +315,8 @@
                 </div>
             </article>
 
-            <!-- CURSO 2: UNLP - Blockchain Mujeres Crypto - DISPONIBLE -->
-            <article class="course-card glass-card rounded-2xl shadow-lg overflow-hidden animate-slide-up stagger-2 opacity-0" data-category="blockchain">
-                <div class="h-1 bg-gradient-to-r from-blue-400 to-blue-600"></div>
-                <div class="p-5 md:p-6">
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700">Blockchain</span>
-                        <span class="status-pending px-3 py-1 rounded-full text-xs font-bold">PRÓXIMO</span>
-                    </div>
-                    <h3 class="text-lg font-bold text-slate-800 mb-3 line-clamp-2">Introducción a Blockchain - Mujeres en Crypto</h3>
-                    <p class="text-slate-600 text-sm mb-4 line-clamp-3">Curso virtual de 7 clases sobre blockchain, wallets, NFTs, DAOs y DeFi. Organizado por Mujeres en Crypto.</p>
-                    <div class="space-y-2 mb-5 text-sm text-slate-500">
-                        <div class="flex items-center"><svg class="w-4 h-4 mr-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg><span class="font-medium text-slate-700">UNLP - Fac. Derecho</span></div>
-                        <div class="flex items-center"><svg class="w-4 h-4 mr-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>7 clases sincrónicas</div>
-                        <div class="flex items-center"><svg class="w-4 h-4 mr-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>Consultar fechas 2025</div>
-                    </div>
-                    <div class="space-y-2">
-                        <a href="https://www.jursoc.unlp.edu.ar/index.php/institucional/politicas-digitales-menu/item/4698-curso-virtual-introduccion-a-blockchain-mujeres-en-cripto.html" target="_blank" class="btn-modern touch-btn block w-full text-center text-white py-3 rounded-xl font-semibold shadow-lg">📖 Ver Curso</a>
-                        <a href="mailto:politicasdigitales@jursoc.unlp.edu.ar" class="touch-btn block w-full text-center bg-slate-100 text-slate-700 py-3 rounded-xl font-semibold hover:bg-slate-200 transition-colors">✉️ Consultar Inscripción</a>
-                    </div>
-                </div>
-            </article>
-
-            <!-- CURSO 3: Austral Legal Tech Coursera - DISPONIBLE -->
-            <article class="course-card glass-card rounded-2xl shadow-lg overflow-hidden animate-slide-up stagger-3 opacity-0" data-category="legal-tech">
+            <!-- CURSO 5: Austral Legal Tech Coursera - DISPONIBLE -->
+            <article class="course-card glass-card rounded-2xl shadow-lg overflow-hidden animate-slide-up stagger-1 opacity-0" data-category="legal-tech">
                 <div class="h-1 bg-gradient-to-r from-emerald-400 to-emerald-600"></div>
                 <div class="p-5 md:p-6">
                     <div class="flex justify-between items-start mb-4">
@@ -252,8 +337,8 @@
                 </div>
             </article>
 
-            <!-- CURSO 4: Austral Blockchain Coursera - DISPONIBLE -->
-            <article class="course-card glass-card rounded-2xl shadow-lg overflow-hidden animate-slide-up stagger-4 opacity-0" data-category="blockchain">
+            <!-- CURSO 6: Austral Blockchain Coursera - DISPONIBLE -->
+            <article class="course-card glass-card rounded-2xl shadow-lg overflow-hidden animate-slide-up stagger-2 opacity-0" data-category="blockchain">
                 <div class="h-1 bg-gradient-to-r from-blue-400 to-blue-600"></div>
                 <div class="p-5 md:p-6">
                     <div class="flex justify-between items-start mb-4">
@@ -274,98 +359,38 @@
                 </div>
             </article>
 
-            <!-- CURSO 5: UNC Criptoactivos - PRÓXIMO -->
-            <article class="course-card glass-card rounded-2xl shadow-lg overflow-hidden animate-slide-up stagger-1 opacity-0" data-category="blockchain">
-                <div class="h-1 bg-gradient-to-r from-blue-400 to-blue-600"></div>
-                <div class="p-5 md:p-6">
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700">Blockchain</span>
-                        <span class="status-pending px-3 py-1 rounded-full text-xs font-bold">2026</span>
-                    </div>
-                    <h3 class="text-lg font-bold text-slate-800 mb-3 line-clamp-2">Criptoactivos, Blockchain y Finanzas Descentralizadas</h3>
-                    <p class="text-slate-600 text-sm mb-4 line-clamp-3">Fundamentos de criptomonedas, blockchain, DeFi y economía digital. Clases grabadas disponibles.</p>
-                    <div class="space-y-2 mb-5 text-sm text-slate-500">
-                        <div class="flex items-center"><svg class="w-4 h-4 mr-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg><span class="font-medium text-slate-700">UNC - Fac. Cs. Económicas</span></div>
-                        <div class="flex items-center"><svg class="w-4 h-4 mr-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>7 semanas • 100% virtual</div>
-                        <div class="flex items-center"><svg class="w-4 h-4 mr-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>Próxima edición: 2026</div>
-                    </div>
-                    <div class="space-y-2">
-                        <a href="https://secretariaextension.eco.unc.edu.ar/index.php/15-cursos/economiadigital/170-criptoactivosyblockchain" target="_blank" class="btn-modern touch-btn block w-full text-center text-white py-3 rounded-xl font-semibold shadow-lg">📖 Preinscribirse</a>
-                        <p class="text-xs text-slate-500 text-center mt-2">📹 Clases grabadas • 💰 Consultar costo</p>
-                    </div>
-                </div>
-            </article>
-
-            <!-- CURSO 6: Palermo IA Coursera - DISPONIBLE -->
-            <article class="course-card glass-card rounded-2xl shadow-lg overflow-hidden animate-slide-up stagger-2 opacity-0" data-category="legal-tech">
-                <div class="h-1 bg-gradient-to-r from-emerald-400 to-emerald-600"></div>
-                <div class="p-5 md:p-6">
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">Legal Tech</span>
-                        <span class="status-active px-3 py-1 rounded-full text-xs font-bold">DISPONIBLE</span>
-                    </div>
-                    <h3 class="text-lg font-bold text-slate-800 mb-3 line-clamp-2">Inteligencia Artificial Aplicada al Derecho</h3>
-                    <p class="text-slate-600 text-sm mb-4 line-clamp-3">Fundamentos de IA y sus aplicaciones en la práctica jurídica. Universidad de Palermo vía Coursera.</p>
-                    <div class="space-y-2 mb-5 text-sm text-slate-500">
-                        <div class="flex items-center"><svg class="w-4 h-4 mr-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg><span class="font-medium text-slate-700">Univ. Palermo • Coursera</span></div>
-                        <div class="flex items-center"><svg class="w-4 h-4 mr-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>1 semana • 10 horas</div>
-                        <div class="flex items-center"><svg class="w-4 h-4 mr-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>Inicio flexible</div>
-                    </div>
-                    <div class="space-y-2">
-                        <a href="https://www.coursera.org/learn/inteligencia-artificial-aplicada-al-derecho" target="_blank" class="btn-modern touch-btn block w-full text-center text-white py-3 rounded-xl font-semibold shadow-lg">🎓 Acceder en Coursera</a>
-                        <p class="text-xs text-slate-500 text-center mt-2">🎓 Auditar gratis • 💰 Certificado pago</p>
-                    </div>
-                </div>
-            </article>
-
         </div>
 
-        <!-- Cursos Finalizados con Material Disponible -->
-        <section class="mt-12 bg-slate-100 rounded-2xl p-6 md:p-8 border-2 border-slate-200">
-            <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-4 flex items-center gap-3">
-                <svg class="w-7 h-7 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+        <!-- Sección Colegio Abogados Córdoba -->
+        <section class="mt-12 bg-gradient-to-r from-slate-100 to-slate-50 rounded-2xl p-6 md:p-8 border border-slate-200">
+            <div class="flex items-center gap-3 mb-4">
+                <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                 </svg>
-                Cursos Finalizados con Material Grabado
-            </h2>
-            <p class="text-slate-600 mb-6 text-sm">Estos cursos ya se impartieron pero cuentan con videos, presentaciones y bibliografía accesible:</p>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                
-                <!-- Curso Grabado 1 -->
-                <div class="bg-white rounded-xl p-5 shadow-md border-l-4 border-blue-500">
-                    <div class="flex justify-between items-start mb-3">
-                        <h3 class="font-bold text-slate-800">Taller: Justicia Descentralizada</h3>
-                        <span class="status-recorded px-2 py-1 rounded text-xs font-bold">GRABADO</span>
+                <h2 class="text-xl md:text-2xl font-bold text-slate-800">Colegio de Abogados de Córdoba</h2>
+            </div>
+            <div class="bg-white rounded-xl p-5 shadow-md">
+                <div class="flex flex-col md:flex-row gap-4 items-start">
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-slate-800 mb-2">Convenio doinGlobal - Formación Jurídica</h3>
+                        <p class="text-sm text-slate-600 mb-3">Alianza estratégica para formación académica de vanguardia en innovación jurídica. Acceso a programas co-creados con Universidad de Salamanca, Ai Academy y Collège de Paris.</p>
+                        <div class="flex flex-wrap gap-2 mb-3">
+                            <span class="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs font-semibold">Innova.legal</span>
+                            <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-semibold">Derecho Digital</span>
+                            <span class="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs font-semibold">IA Jurídica</span>
+                        </div>
+                        <a href="https://doinglobal.com/convenio-doinglobal-y-colegio-de-abogados-de-cordoba-formacion-juridica-de-vanguardia/" target="_blank" class="text-primary-600 text-sm font-semibold hover:underline flex items-center gap-1">
+                            Ver convenio y beneficios
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        </a>
                     </div>
-                    <p class="text-sm text-slate-600 mb-3">Taller práctico sobre blockchain, contratos inteligentes y resolución de disputas online con Kleros.</p>
-                    <div class="flex items-center text-xs text-slate-500 mb-3">
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                        UNLP • Junio 2024
+                    <div class="bg-slate-50 p-3 rounded-lg">
+                        <p class="text-xs text-slate-500 mb-1">Contacto Colegio:</p>
+                        <p class="text-sm font-semibold text-slate-700">Córdoba, Argentina</p>
+                        <p class="text-xs text-slate-500 mt-2">Consultar próximas capacitaciones en:</p>
+                        <a href="https://www.colabro.org.ar" target="_blank" class="text-primary-600 text-xs hover:underline">www.colabro.org.ar</a>
                     </div>
-                    <a href="https://www.jursoc.unlp.edu.ar/index.php/institucional/politicas-digitales-menu/item/4079-kleros2.html" target="_blank" class="text-primary-600 text-sm font-semibold hover:underline flex items-center gap-1">
-                        📹 Ver material y fotos
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                    </a>
                 </div>
-
-                <!-- Curso Grabado 2 -->
-                <div class="bg-white rounded-xl p-5 shadow-md border-l-4 border-blue-500">
-                    <div class="flex justify-between items-start mb-3">
-                        <h3 class="font-bold text-slate-800">Blockchain para Abogados</h3>
-                        <span class="status-recorded px-2 py-1 rounded text-xs font-bold">GRABADO</span>
-                    </div>
-                    <p class="text-sm text-slate-600 mb-3">Curso intensivo sobre blockchain y contratos inteligentes para abogados y escribanos.</p>
-                    <div class="flex items-center text-xs text-slate-500 mb-3">
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                        UNCuyo • Junio 2019
-                    </div>
-                    <a href="https://derecho.uncuyo.edu.ar/blockchain-para-abogados-y-escribanos" target="_blank" class="text-primary-600 text-sm font-semibold hover:underline flex items-center gap-1">
-                        📖 Ver contenido y agenda
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                    </a>
-                </div>
-
             </div>
         </section>
 
@@ -376,8 +401,8 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
                 <div>
-                    <p class="font-semibold text-amber-800 mb-1">⚠️ Importante</p>
-                    <p class="text-sm text-amber-700">Se han eliminado de este listado los cursos que no están disponibles o no tienen fecha confirmada para 2025-2026. Solo se muestran cursos verificados y accesibles. Para consultas sobre ediciones anteriores, contactar directamente a cada institución.</p>
+                    <p class="font-semibold text-amber-800 mb-1">⚠️ Importante - Cursos UNC</p>
+                    <p class="text-sm text-amber-700">Los cursos de la Universidad Nacional de Córdoba (Blockchain, Smart Contracts/Contratos Inteligentes, IA y Derecho) se muestran primero por cercanía institucional. Se recomienda verificar fechas y requisitos directamente en los sitios web oficiales de la UNC. La página se actualiza diariamente con las últimas novedades.</p>
                 </div>
             </div>
         </div>
@@ -414,13 +439,16 @@
 
         // Contar cursos
         const updateCounts = () => {
-            const categories = ['blockchain', 'legal-tech', 'mixed'];
+            const categories = ['blockchain', 'legal-tech', 'unc', 'smart-contracts'];
             const counts = {};
-            categories.forEach(cat => { counts[cat] = document.querySelectorAll(`[data-category="${cat}"]`).length; });
+            categories.forEach(cat => { 
+                counts[cat] = document.querySelectorAll(`[data-category*="${cat}"]`).length; 
+            });
             document.getElementById('blockchainCount').textContent = counts['blockchain'];
             document.getElementById('legaltechCount').textContent = counts['legal-tech'];
-            document.getElementById('mixedCount').textContent = counts['mixed'];
-            document.getElementById('totalCourses').textContent = counts['blockchain'] + counts['legal-tech'] + counts['mixed'];
+            document.getElementById('uncCount').textContent = counts['unc'];
+            document.getElementById('smartContractsCount').textContent = counts['smart-contracts'];
+            document.getElementById('totalCourses').textContent = document.querySelectorAll('.course-card').length;
         };
 
         // Filtrar cursos
@@ -429,15 +457,21 @@
             const buttons = document.querySelectorAll('.filter-btn');
             buttons.forEach(btn => {
                 if (btn.dataset.category === category) {
-                    btn.classList.remove('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+                    btn.classList.remove('bg-white', 'text-slate-700', 'border', 'border-slate-200', 'text-orange-700', 'border-orange-200', 'text-purple-700', 'border-purple-200');
                     btn.classList.add('bg-primary-600', 'text-white', 'shadow-lg');
                 } else {
                     btn.classList.remove('bg-primary-600', 'text-white', 'shadow-lg');
-                    btn.classList.add('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+                    if (btn.dataset.category === 'unc') {
+                        btn.classList.add('bg-white', 'text-orange-700', 'border', 'border-orange-200');
+                    } else if (btn.dataset.category === 'smart-contracts') {
+                        btn.classList.add('bg-white', 'text-purple-700', 'border', 'border-purple-200');
+                    } else {
+                        btn.classList.add('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+                    }
                 }
             });
             cards.forEach(card => {
-                if (category === 'all' || card.dataset.category === category) {
+                if (category === 'all' || card.dataset.category.includes(category)) {
                     card.style.display = 'block';
                 } else {
                     card.style.display = 'none';
@@ -448,7 +482,15 @@
         // Inicializar
         document.addEventListener('DOMContentLoaded', () => {
             updateCounts();
-            filterCourses('all');
+            // Ordenar cursos UNC primero
+            const grid = document.getElementById('courses-grid');
+            const cards = Array.from(grid.children);
+            cards.sort((a, b) => {
+                const aIsUnc = a.dataset.category.includes('unc');
+                const bIsUnc = b.dataset.category.includes('unc');
+                return bIsUnc - aIsUnc;
+            });
+            cards.forEach(card => grid.appendChild(card));
         });
     </script>
 </body>
